@@ -5,7 +5,6 @@
 //  Created by Shatha Alsharif on 17/04/1446 AH.
 //
 import SwiftUI
-
 struct SetReminderView: View {
     @Environment(\.presentationMode) var presentationMode
     @State private var plantName: String = ""
