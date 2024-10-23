@@ -8,20 +8,18 @@ import SwiftUI
 
 struct TodayReminderView: View {
     @State private var reminders: [Reminder] = []
-    @State private var navigateToCompletedView = false // State variable for navigation
-    @State private var selectedReminder: Reminder? // State variable for the selected reminder
+    @State private var navigateToCompletedView = false
+    @State private var selectedReminder: Reminder?
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             VStack {
-                // Title for Today Reminder View
                 HStack {
                     Text("My Plants 🌱")
                         .font(.largeTitle)
                         .fontWeight(.bold)
                         .foregroundColor(.white)
                         .padding()
-
                     Spacer()
                 }
 
@@ -35,9 +33,7 @@ struct TodayReminderView: View {
                     .foregroundColor(.white)
                     .padding(.trailing, 278.0)
 
-                // Reminder List
                 if reminders.isEmpty {
-                    // Navigate to the completed view when there are no reminders
                     NavigationLink(destination: ReminderCompletedView(), isActive: $navigateToCompletedView) {
                         EmptyView()
                     }
@@ -45,7 +41,6 @@ struct TodayReminderView: View {
                     List {
                         ForEach(reminders.indices, id: \.self) { index in
                             VStack(alignment: .leading) {
-                                // Location detail above each reminder
                                 HStack {
                                     Image(systemName: "location")
                                         .foregroundColor(.gray)
@@ -56,11 +51,11 @@ struct TodayReminderView: View {
                                 }
                                 .padding([.top, .leading], 7.0)
 
-                                // Button for marking as done and editing reminder
                                 HStack {
                                     Button(action: {
-                                        // Navigate to the SetReminderView with the selected reminder
-                                        selectedReminder = reminders[index]
+                                        // Toggle the isDone state
+                                        reminders[index].isDone.toggle()
+                                        selectedReminder = reminders[index] // Set selected reminder for navigation
                                     }) {
                                         Image(systemName: reminders[index].isDone ? "checkmark.circle.fill" : "circle")
                                             .foregroundColor(reminders[index].isDone ? .green : .gray)
@@ -68,8 +63,8 @@ struct TodayReminderView: View {
                                             .font(.system(size: 30))
                                     }
                                     .background(
-                                        NavigationLink(destination: SetReminderView(reminder: selectedReminder), isActive: Binding<Bool>(
-                                            get: { selectedReminder != nil },
+                                        NavigationLink(destination: SetReminderView(reminder: reminders[index]), isActive: Binding<Bool>(
+                                            get: { selectedReminder == reminders[index] },
                                             set: { if !$0 { selectedReminder = nil } }
                                         )) {
                                             EmptyView()
@@ -86,7 +81,6 @@ struct TodayReminderView: View {
                                 }
                                 .padding(.leading)
 
-                                // Light and water requirement details combined
                                 HStack(spacing: 10) {
                                     HStack {
                                         Image(systemName: "sun.max")
@@ -107,6 +101,16 @@ struct TodayReminderView: View {
                                     .padding(7.0)
                                     .background(Color.gray.opacity(0.2))
                                     .cornerRadius(5)
+
+                                    HStack {
+                                        Image(systemName: "calendar")
+                                            .foregroundColor(.orange)
+                                        Text(reminders[index].wateringDays)
+                                            .foregroundColor(.orange)
+                                    }
+                                    .padding(7.0)
+                                    .background(Color.gray.opacity(0.2))
+                                    .cornerRadius(5)
                                 }
                                 .padding(.leading, 5)
 
@@ -114,14 +118,13 @@ struct TodayReminderView: View {
                                     .background(Color.white)
                             }
                         }
-                        .onDelete(perform: deleteReminder) // Add swipe-to-delete functionality
+                        .onDelete(perform: deleteReminder)
                     }
-                    .listStyle(PlainListStyle()) // Use plain list style
+                    .listStyle(PlainListStyle())
                 }
 
                 Spacer(minLength: 20)
 
-                // New Reminder Button at the bottom
                 NavigationLink(destination: SetReminderView()) {
                     HStack {
                         Image(systemName: "plus.circle.fill")
@@ -145,7 +148,7 @@ struct TodayReminderView: View {
             .onAppear {
                 loadReminders()
             }
-            .navigationBarBackButtonHidden(true) // Hide the back button🔴
+            .navigationBarBackButtonHidden(true)//for hide back button
         }
     }
 
@@ -155,20 +158,17 @@ struct TodayReminderView: View {
                 guard let title = dict["plantName"],
                       let location = dict["room"],
                       let light = dict["light"],
-                      let water = dict["water"] else { return nil }
-                return Reminder(title: title, isDone: false, location: location, light: light, water: water)
+                      let water = dict["water"],
+                      let wateringDays = dict["wateringDays"] else { return nil }
+                return Reminder(title: title, isDone: false, location: location, light: light, water: water, wateringDays: wateringDays)
             }
         }
     }
 
     private func deleteReminder(at offsets: IndexSet) {
-        // Remove reminders from the list
         reminders.remove(atOffsets: offsets)
-
-        // Update UserDefaults
         saveReminders()
 
-        // Check if reminders are empty and navigate to the completed view
         if reminders.isEmpty {
             navigateToCompletedView = true
         }
@@ -180,20 +180,21 @@ struct TodayReminderView: View {
                 "plantName": reminder.title,
                 "room": reminder.location,
                 "light": reminder.light,
-                "water": reminder.water
+                "water": reminder.water,
+                "wateringDays": reminder.wateringDays
             ]
         }
         UserDefaults.standard.set(remindersToSave, forKey: "reminders")
     }
 }
 
-// Reminder struct to hold title, done state, location, light requirement, and water requirement
-struct Reminder {
+struct Reminder: Equatable {
     var title: String
     var isDone: Bool
     var location: String
     var light: String
     var water: String
+    var wateringDays: String
 }
 
 #Preview {

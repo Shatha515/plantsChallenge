@@ -11,7 +11,7 @@ struct ContentView: View {
     @State private var showSetReminder = false
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ZStack {
                 Image("stickerPlant")
                     .padding(.bottom, 263.0) // Adjust as needed for your layout

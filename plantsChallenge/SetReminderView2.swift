@@ -23,7 +23,7 @@ struct SetReminderView2: View {
     let roomOptions = ["Bedroom", "Living Room", "Kitchen", "Balcony", "Bathroom"]
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             VStack {
                 Form {
                     Section(header: Text("").foregroundColor(.white)) {
@@ -116,7 +116,7 @@ struct SetReminderView2: View {
                 }
                 .padding()
             }
-            .navigationBarTitle("", displayMode: .inline)
+           
             .navigationBarItems(
                 leading: Button("Cancel") {
                     presentationMode.wrappedValue.dismiss()

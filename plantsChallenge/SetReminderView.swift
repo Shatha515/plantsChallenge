@@ -7,7 +7,6 @@
 
 
 //EDITE AND DELETE
-
 import SwiftUI
 
 struct SetReminderView: View {
@@ -32,13 +31,12 @@ struct SetReminderView: View {
             _room = State(initialValue: reminder.location)
             _light = State(initialValue: reminder.light)
             _water = State(initialValue: reminder.water)
-            // Set a default value for wateringDays if needed
             _wateringDays = State(initialValue: "Choose Watering Days") // Adjust as necessary
         }
     }
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             VStack {
                 // Form content
                 Form {
@@ -148,7 +146,7 @@ struct SetReminderView: View {
                 }
             }
             .padding(.bottom, 150.0)
-            .navigationBarTitle("", displayMode: .inline)//🔴
+           
             .navigationBarItems(leading: Button("Cancel") {
                 presentationMode.wrappedValue.dismiss()
             }
@@ -166,6 +164,7 @@ struct SetReminderView: View {
                         .multilineTextAlignment(.center)
                 }
             }
+            .navigationBarBackButtonHidden(true) // Hide the back button
         }
         .accentColor(.gray)
     }
@@ -185,7 +184,7 @@ struct SetReminderView: View {
 
     private func deleteReminder() {
         // Logic to delete the reminder goes here
-        print("Deleting reminder for \(plantName)")//🔴
+        print("Deleting reminder for \(plantName)")
 
         // Notify parent view or handle deletion logic (e.g., updating UserDefaults)
         
