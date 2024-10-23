@@ -13,12 +13,17 @@ struct ReminderCompletedView: View {
         ZStack {
             // Background Image
             Image("completedPicture")
-                .resizable() // Make the image resizable
-                .scaledToFit() // Maintain the aspect ratio
-                .frame(width: 200, height: 200) // Set the desired size
-                .padding(.top, 100) // Optional: adjust padding to center vertically
+                .resizable()
+            
+                .scaledToFit()
+            
+                .frame(width: 200, height: 200)
+            
+                .padding([.top, .bottom, .trailing], 35.0)
+            //  adjust padding to center vertically
             
             VStack {
+               
                 // Title for the Completed Reminder View
                 VStack {
                     Text("My Plants 🌱")
@@ -36,9 +41,17 @@ struct ReminderCompletedView: View {
                 .padding()
                 
                 Spacer() // Push the button to the bottom
+               // Text center
+                Text("All Done!🎉")
+                    .font(.title)
+                    .fontWeight(.bold)
+                    .padding(.top, 166.0)
+                Text(" All reminders completed")
+                    .foregroundColor(Color.gray)
+                    .padding(.bottom, 160.0)
                 
                 // New Reminder Button
-                NavigationLink(destination: SetReminderView()) {
+                NavigationLink(destination: SetReminderView2()) {
                     HStack {
                         Image(systemName: "plus.circle.fill")
                             .foregroundColor(Color(red: 40/255, green: 224/255, blue: 168/255)) // Set custom color
@@ -46,9 +59,9 @@ struct ReminderCompletedView: View {
                         Text(" New Reminder")
                             .font(.title2)
                             .fontWeight(.bold)
-                            .foregroundColor(.green) // Set text color
+                            .foregroundColor(Color(red: 40/255, green: 224/255, blue: 168/255)) // Set text color
                     }
-                    .padding() // Add padding around the button
+                    .padding(.trailing, 171.0) // Add padding around the button
                  
                     .cornerRadius(10) // Rounded corners
                 }
@@ -56,8 +69,7 @@ struct ReminderCompletedView: View {
             }
         }
         .foregroundColor(.white) // Optional: text color
-        .navigationBarTitle("Completed", displayMode: .inline)
-        .navigationBarBackButtonHidden(true) // Hide the back button
+       
     }
 }
 

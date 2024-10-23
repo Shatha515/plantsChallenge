@@ -23,6 +23,20 @@ struct SetReminderView: View {
     let waterOptions = ["20-50 ml", "50-100 ml", "100-200 ml", "200-300 ml"]
     let roomOptions = ["Bedroom", "Living Room", "Kitchen", "Balcony", "Bathroom"]
 
+    var reminder: Reminder? // The reminder to edit (if any)
+
+    init(reminder: Reminder? = nil) {
+        self.reminder = reminder
+        if let reminder = reminder {
+            _plantName = State(initialValue: reminder.title)
+            _room = State(initialValue: reminder.location)
+            _light = State(initialValue: reminder.light)
+            _water = State(initialValue: reminder.water)
+            // Set a default value for wateringDays if needed
+            _wateringDays = State(initialValue: "Choose Watering Days") // Adjust as necessary
+        }
+    }
+
     var body: some View {
         NavigationView {
             VStack {
@@ -118,20 +132,23 @@ struct SetReminderView: View {
                 }
                 
                 // Delete Reminder Button
-                Button(action: {
-                    // Handle delete action
-                }) {
-                    Text("Delete Reminder")
-                        .foregroundColor(.red)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.gray.opacity(0.2))
-                        .cornerRadius(5)
+                if reminder != nil {
+                    Button(action: {
+                        // Handle delete action
+                        deleteReminder()
+                    }) {
+                        Text("Delete Reminder")
+                            .foregroundColor(.red)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.gray.opacity(0.2))
+                            .cornerRadius(5)
+                    }
+                    .padding()
                 }
-                .padding()
             }
             .padding(.bottom, 150.0)
-            .navigationBarTitle("", displayMode: .inline)
+            .navigationBarTitle("", displayMode: .inline)//🔴
             .navigationBarItems(leading: Button("Cancel") {
                 presentationMode.wrappedValue.dismiss()
             }
@@ -140,7 +157,7 @@ struct SetReminderView: View {
                 saveReminder()
             }
             .foregroundColor(.green))
-            .navigationBarBackButtonHidden(true) // Hide the back button
+            
             .toolbar {
                 ToolbarItem(placement: .principal) {
                     Text("Set Reminder")
@@ -154,14 +171,24 @@ struct SetReminderView: View {
     }
 
     private func saveReminder() {
+        // Logic to save reminder goes here
         print("Plant Name: \(plantName)")
         print("Room: \(room)")
         print("Light: \(light)")
         print("Watering Days: \(wateringDays)")
         print("Water: \(water)")
 
-        // Logic to save reminder goes here
+        // Add logic to update or save the reminder in UserDefaults or any data store you use.
 
+        presentationMode.wrappedValue.dismiss()
+    }
+
+    private func deleteReminder() {
+        // Logic to delete the reminder goes here
+        print("Deleting reminder for \(plantName)")//🔴
+
+        // Notify parent view or handle deletion logic (e.g., updating UserDefaults)
+        
         presentationMode.wrappedValue.dismiss()
     }
 }

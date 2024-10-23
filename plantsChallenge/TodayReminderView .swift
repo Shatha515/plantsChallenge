@@ -8,6 +8,8 @@ import SwiftUI
 
 struct TodayReminderView: View {
     @State private var reminders: [Reminder] = []
+    @State private var navigateToCompletedView = false // State variable for navigation
+    @State private var selectedReminder: Reminder? // State variable for the selected reminder
 
     var body: some View {
         NavigationView {
@@ -34,70 +36,88 @@ struct TodayReminderView: View {
                     .padding(.trailing, 278.0)
 
                 // Reminder List
-                List {
-                    ForEach(reminders.indices, id: \.self) { index in
-                        VStack(alignment: .leading) {
-                            // Location detail above each reminder
-                            HStack {
-                                Image(systemName: "location")
-                                    .foregroundColor(.gray)
-                                    .padding(.leading, 5.0)
-                                Text(reminders[index].location)
-                                    .foregroundColor(.gray)
-                                    .padding(.leading, 2.0)
-                            }
-                            .padding([.top, .leading], 7.0)
-
-                            HStack {
-                                Button(action: {
-                                    reminders[index].isDone.toggle()
-                                }) {
-                                    Image(systemName: reminders[index].isDone ? "checkmark.circle.fill" : "circle")
-                                        .foregroundColor(reminders[index].isDone ? .green : .gray)
-                                        .padding(0.0)
-                                        .font(.system(size: 30))
-                                }
-
-                                Text(reminders[index].title)
-                                    .font(.title)
-                                    .foregroundColor(.white)
-                                    .padding(7.0)
-
-                                Spacer()
-                            }
-                            .padding(.leading)
-
-                            // Light and water requirement details combined
-                            HStack(spacing: 10) {
-                                HStack {
-                                    Image(systemName: "sun.max")
-                                        .foregroundColor(.yellow)
-                                    Text(reminders[index].light)
-                                        .foregroundColor(.yellow)
-                                }
-                                .padding(7.0)
-                                .background(Color.gray.opacity(0.2))
-                                .cornerRadius(5)
-
-                                HStack {
-                                    Image(systemName: "drop")
-                                        .foregroundColor(Color(red: 0.6, green: 0.8, blue: 1.0))
-                                    Text(reminders[index].water)
-                                        .foregroundColor(Color(red: 0.6, green: 0.8, blue: 1.0))
-                                }
-                                .padding(7.0)
-                                .background(Color.gray.opacity(0.2))
-                                .cornerRadius(5)
-                            }
-                            .padding(.leading, 5)
-
-                            Divider()
-                                .background(Color.white)
-                        }
+                if reminders.isEmpty {
+                    // Navigate to the completed view when there are no reminders
+                    NavigationLink(destination: ReminderCompletedView(), isActive: $navigateToCompletedView) {
+                        EmptyView()
                     }
-                    .onDelete(perform: deleteReminder) // Add swipe-to-delete functionality
+                } else {
+                    List {
+                        ForEach(reminders.indices, id: \.self) { index in
+                            VStack(alignment: .leading) {
+                                // Location detail above each reminder
+                                HStack {
+                                    Image(systemName: "location")
+                                        .foregroundColor(.gray)
+                                        .padding(.leading, 5.0)
+                                    Text(reminders[index].location)
+                                        .foregroundColor(.gray)
+                                        .padding(.leading, 2.0)
+                                }
+                                .padding([.top, .leading], 7.0)
+
+                                // Button for marking as done and editing reminder
+                                HStack {
+                                    Button(action: {
+                                        // Navigate to the SetReminderView with the selected reminder
+                                        selectedReminder = reminders[index]
+                                    }) {
+                                        Image(systemName: reminders[index].isDone ? "checkmark.circle.fill" : "circle")
+                                            .foregroundColor(reminders[index].isDone ? .green : .gray)
+                                            .padding(0.0)
+                                            .font(.system(size: 30))
+                                    }
+                                    .background(
+                                        NavigationLink(destination: SetReminderView(reminder: selectedReminder), isActive: Binding<Bool>(
+                                            get: { selectedReminder != nil },
+                                            set: { if !$0 { selectedReminder = nil } }
+                                        )) {
+                                            EmptyView()
+                                        }
+                                        .hidden()
+                                    )
+
+                                    Text(reminders[index].title)
+                                        .font(.title)
+                                        .foregroundColor(.white)
+                                        .padding(7.0)
+
+                                    Spacer()
+                                }
+                                .padding(.leading)
+
+                                // Light and water requirement details combined
+                                HStack(spacing: 10) {
+                                    HStack {
+                                        Image(systemName: "sun.max")
+                                            .foregroundColor(.yellow)
+                                        Text(reminders[index].light)
+                                            .foregroundColor(.yellow)
+                                    }
+                                    .padding(7.0)
+                                    .background(Color.gray.opacity(0.2))
+                                    .cornerRadius(5)
+
+                                    HStack {
+                                        Image(systemName: "drop")
+                                            .foregroundColor(Color(red: 0.6, green: 0.8, blue: 1.0))
+                                        Text(reminders[index].water)
+                                            .foregroundColor(Color(red: 0.6, green: 0.8, blue: 1.0))
+                                    }
+                                    .padding(7.0)
+                                    .background(Color.gray.opacity(0.2))
+                                    .cornerRadius(5)
+                                }
+                                .padding(.leading, 5)
+
+                                Divider()
+                                    .background(Color.white)
+                            }
+                        }
+                        .onDelete(perform: deleteReminder) // Add swipe-to-delete functionality
+                    }
+                    .listStyle(PlainListStyle()) // Use plain list style
                 }
-                .listStyle(PlainListStyle()) // Use plain list style
 
                 Spacer(minLength: 20)
 
@@ -105,13 +125,13 @@ struct TodayReminderView: View {
                 NavigationLink(destination: SetReminderView()) {
                     HStack {
                         Image(systemName: "plus.circle.fill")
-                            .foregroundColor(.green)
+                            .foregroundColor(Color(red: 40/255, green: 224/255, blue: 168/255))
                             .font(.system(size: 24))
 
                         Text(" New Reminder")
                             .font(.title2)
                             .fontWeight(.bold)
-                            .foregroundColor(.green)
+                            .foregroundColor(Color(red: 40/255, green: 224/255, blue: 168/255))
                             .padding(.leading, 5)
 
                         Spacer()
@@ -125,6 +145,7 @@ struct TodayReminderView: View {
             .onAppear {
                 loadReminders()
             }
+            .navigationBarBackButtonHidden(true) // Hide the back button🔴
         }
     }
 
@@ -141,7 +162,28 @@ struct TodayReminderView: View {
     }
 
     private func deleteReminder(at offsets: IndexSet) {
+        // Remove reminders from the list
         reminders.remove(atOffsets: offsets)
+
+        // Update UserDefaults
+        saveReminders()
+
+        // Check if reminders are empty and navigate to the completed view
+        if reminders.isEmpty {
+            navigateToCompletedView = true
+        }
+    }
+
+    private func saveReminders() {
+        let remindersToSave = reminders.map { reminder in
+            [
+                "plantName": reminder.title,
+                "room": reminder.location,
+                "light": reminder.light,
+                "water": reminder.water
+            ]
+        }
+        UserDefaults.standard.set(remindersToSave, forKey: "reminders")
     }
 }
 
