@@ -61,7 +61,7 @@ struct ContentView: View {
                     }
                     .padding(.top, 10.0) // Small padding to separate the button from the text
                     .sheet(isPresented: $showSetReminder) {
-                        SetReminderView() // Present the SetReminderView as a sheet
+                        SetReminderView2() // Present the SetReminderView as a sheet
                     }
                 }
                 .padding(.bottom, 129.0) // Adjust bottom padding as needed

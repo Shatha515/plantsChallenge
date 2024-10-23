@@ -1,22 +1,20 @@
 //
-//  setReminder.swift
+//  SetReminderView2.swift
 //  plantsChallenge
 //
-//  Created by Shatha Alsharif on
-//17/04/1446 AH.
-
-
-//EDITE AND DELETE
-
+//  Created by Shatha Alsharif on 19/04/1446 AH.
+//
+// 
 import SwiftUI
 
-struct SetReminderView: View {
+struct SetReminderView2: View {
     @Environment(\.presentationMode) var presentationMode
     @State private var plantName: String = ""
     @State private var room: String = "Choose Room"
     @State private var light: String = "Choose Light"
     @State private var wateringDays: String = "Choose Watering Days"
     @State private var water: String = "Choose Watering Frequency"
+    @State private var navigateToTodayReminder = false // State variable for navigation
     
     let lightOptions = ["Full Sun", "Partial Sun Light", "Low Light"]
     let wateringDaysOptions = ["Every Day", "Every 2 Days", "Every 3 Days", "Once a week", "Every 10 days", "Every 2 weeks"]
@@ -26,7 +24,6 @@ struct SetReminderView: View {
     var body: some View {
         NavigationView {
             VStack {
-                // Form content
                 Form {
                     Section(header: Text(" ").foregroundColor(.white)) {
                         HStack {
@@ -45,7 +42,7 @@ struct SetReminderView: View {
                     }
                     
                     Section(header: Text(" ").foregroundColor(.white)) {
-                        // Room Box
+                        // Room Picker
                         HStack {
                             Image(systemName: "location")
                                 .foregroundColor(.white)
@@ -62,7 +59,7 @@ struct SetReminderView: View {
                         .cornerRadius(5)
                         .frame(height: 40)
                         
-                        // Light Box
+                        // Light Picker
                         HStack {
                             Image(systemName: "sun.max")
                                 .foregroundColor(.white)
@@ -81,7 +78,7 @@ struct SetReminderView: View {
                     }
                     
                     Section(header: Text(" ").foregroundColor(.white)) {
-                        // Watering Days Box
+                        // Watering Days Picker
                         HStack {
                             Image(systemName: "drop")
                                 .foregroundColor(.white)
@@ -98,7 +95,7 @@ struct SetReminderView: View {
                         .cornerRadius(5)
                         .frame(height: 40)
                         
-                        // Water Box
+                        // Water Picker
                         HStack {
                             Image(systemName: "drop")
                                 .foregroundColor(.white)
@@ -117,20 +114,9 @@ struct SetReminderView: View {
                     }
                 }
                 
-                // Delete Reminder Button
-                Button(action: {
-                    // Handle delete action
-                }) {
-                    Text("Delete Reminder")
-                        .foregroundColor(.red)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.gray.opacity(0.2))
-                        .cornerRadius(5)
-                }
+                // Navigation Button
                 .padding()
             }
-            .padding(.bottom, 150.0)
             .navigationBarTitle("", displayMode: .inline)
             .navigationBarItems(leading: Button("Cancel") {
                 presentationMode.wrappedValue.dismiss()
@@ -140,7 +126,7 @@ struct SetReminderView: View {
                 saveReminder()
             }
             .foregroundColor(.green))
-            .navigationBarBackButtonHidden(true) // Hide the back button
+            .navigationBarBackButtonHidden(true)
             .toolbar {
                 ToolbarItem(placement: .principal) {
                     Text("Set Reminder")
@@ -149,24 +135,41 @@ struct SetReminderView: View {
                         .multilineTextAlignment(.center)
                 }
             }
+            .sheet(isPresented: $navigateToTodayReminder) {
+                TodayReminderView() // Present TodayReminderView when navigating
+            }
         }
         .accentColor(.gray)
     }
 
     private func saveReminder() {
-        print("Plant Name: \(plantName)")
-        print("Room: \(room)")
-        print("Light: \(light)")
-        print("Watering Days: \(wateringDays)")
-        print("Water: \(water)")
-
-        // Logic to save reminder goes here
-
-        presentationMode.wrappedValue.dismiss()
+        // Create a dictionary with the reminder details
+        let reminderData: [String: String] = [
+            "plantName": plantName,
+            "room": room,
+            "light": light,
+            "wateringDays": wateringDays,
+            "water": water
+        ]
+        
+        // Retrieve existing reminders from UserDefaults
+        var reminders = UserDefaults.standard.array(forKey: "reminders") as? [[String: String]] ?? []
+        
+        // Append the new reminder
+        reminders.append(reminderData)
+        
+        // Save the updated reminders back to UserDefaults
+        UserDefaults.standard.set(reminders, forKey: "reminders")
+        
+        // Print confirmation (for debugging purposes)
+        print("Saved Reminder: \(reminderData)")
+        
+        // Navigate to TodayReminderView
+        navigateToTodayReminder = true
     }
 }
 
 #Preview {
-    SetReminderView()
+    SetReminderView2()
         .preferredColorScheme(.dark)
 }
