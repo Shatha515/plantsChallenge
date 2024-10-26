@@ -23,22 +23,25 @@ struct SetReminderView: View {
     let roomOptions = ["Bedroom", "Living Room", "Kitchen", "Balcony", "Bathroom"]
 
     var reminder: Reminder? // The reminder to edit (if any)
+    var onSave: ((Reminder) -> Void)? // Closure for saving the reminder
+    var onDelete: (() -> Void)? // Closure for deleting the reminder
 
-    init(reminder: Reminder? = nil) {
+    init(reminder: Reminder? = nil, onSave: ((Reminder) -> Void)? = nil, onDelete: (() -> Void)? = nil) {
         self.reminder = reminder
+        self.onSave = onSave
+        self.onDelete = onDelete
         if let reminder = reminder {
             _plantName = State(initialValue: reminder.title)
             _room = State(initialValue: reminder.location)
             _light = State(initialValue: reminder.light)
             _water = State(initialValue: reminder.water)
-            _wateringDays = State(initialValue: "Choose Watering Days") // Adjust as necessary
+            _wateringDays = State(initialValue: reminder.wateringDays)
         }
     }
 
     var body: some View {
         NavigationStack {
             VStack {
-                // Form content
                 Form {
                     Section(header: Text(" ").foregroundColor(.white)) {
                         HStack {
@@ -57,7 +60,6 @@ struct SetReminderView: View {
                     }
                     
                     Section(header: Text(" ").foregroundColor(.white)) {
-                        // Room Box
                         HStack {
                             Image(systemName: "location")
                                 .foregroundColor(.white)
@@ -74,7 +76,6 @@ struct SetReminderView: View {
                         .cornerRadius(5)
                         .frame(height: 40)
                         
-                        // Light Box
                         HStack {
                             Image(systemName: "sun.max")
                                 .foregroundColor(.white)
@@ -93,7 +94,6 @@ struct SetReminderView: View {
                     }
                     
                     Section(header: Text(" ").foregroundColor(.white)) {
-                        // Watering Days Box
                         HStack {
                             Image(systemName: "drop")
                                 .foregroundColor(.white)
@@ -110,7 +110,6 @@ struct SetReminderView: View {
                         .cornerRadius(5)
                         .frame(height: 40)
                         
-                        // Water Box
                         HStack {
                             Image(systemName: "drop")
                                 .foregroundColor(.white)
@@ -132,7 +131,6 @@ struct SetReminderView: View {
                 // Delete Reminder Button
                 if reminder != nil {
                     Button(action: {
-                        // Handle delete action
                         deleteReminder()
                     }) {
                         Text("Delete Reminder")
@@ -146,7 +144,6 @@ struct SetReminderView: View {
                 }
             }
             .padding(.bottom, 150.0)
-           
             .navigationBarItems(leading: Button("Cancel") {
                 presentationMode.wrappedValue.dismiss()
             }
@@ -170,24 +167,27 @@ struct SetReminderView: View {
     }
 
     private func saveReminder() {
-        // Logic to save reminder goes here
-        print("Plant Name: \(plantName)")
-        print("Room: \(room)")
-        print("Light: \(light)")
-        print("Watering Days: \(wateringDays)")
-        print("Water: \(water)")
+        let newReminder = Reminder(
+            title: plantName,
+            isDone: false,
+            location: room,
+            light: light,
+            water: water,
+            wateringDays: wateringDays
+        )
+        
+        // Notify the parent view with the new reminder
+        onSave?(newReminder)
 
-        // Add logic to update or save the reminder in UserDefaults or any data store you use.
-
+        // Dismiss the view
         presentationMode.wrappedValue.dismiss()
     }
 
     private func deleteReminder() {
-        // Logic to delete the reminder goes here
-        print("Deleting reminder for \(plantName)")
-
-        // Notify parent view or handle deletion logic (e.g., updating UserDefaults)
+        // Call the delete closure to remove the reminder from the list
+        onDelete?()
         
+        // Dismiss the view
         presentationMode.wrappedValue.dismiss()
     }
 }

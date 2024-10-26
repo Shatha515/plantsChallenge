@@ -141,7 +141,7 @@ struct SetReminderView2: View {
             .sheet(isPresented: $navigateToTodayReminder) {
                 TodayReminderView() // Present TodayReminderView when navigating
             }
-            .navigationBarBackButtonHidden(true) // Hide the back button🔴
+            .navigationBarBackButtonHidden(true) // Hide the back button
         }
         .accentColor(.gray)
     }

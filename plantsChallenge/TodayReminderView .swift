@@ -9,7 +9,6 @@ import SwiftUI
 struct TodayReminderView: View {
     @State private var reminders: [Reminder] = []
     @State private var navigateToCompletedView = false
-    @State private var selectedReminder: Reminder?
 
     var body: some View {
         NavigationStack {
@@ -55,32 +54,31 @@ struct TodayReminderView: View {
                                     Button(action: {
                                         // Toggle the isDone state
                                         reminders[index].isDone.toggle()
-                                        selectedReminder = reminders[index] // Set selected reminder for navigation
                                     }) {
                                         Image(systemName: reminders[index].isDone ? "checkmark.circle.fill" : "circle")
                                             .foregroundColor(reminders[index].isDone ? .green : .gray)
                                             .padding(0.0)
                                             .font(.system(size: 30))
                                     }
-                                    .background(
-                                        NavigationLink(destination: SetReminderView(reminder: reminders[index]), isActive: Binding<Bool>(
-                                            get: { selectedReminder == reminders[index] },
-                                            set: { if !$0 { selectedReminder = nil } }
-                                        )) {
-                                            EmptyView()
-                                        }
-                                        .hidden()
-                                    )
 
-                                    Text(reminders[index].title)
-                                        .font(.title)
-                                        .foregroundColor(.white)
-                                        .padding(7.0)
+                                    NavigationLink(destination: SetReminderView(reminder: reminders[index], onSave: { updatedReminder in
+                                        reminders[index] = updatedReminder // Update the reminder
+                                        saveReminders() // Save updated reminders
+                                    }, onDelete: {
+                                        reminders.remove(at: index) // Delete the reminder
+                                        saveReminders() // Save reminders after deletion
+                                    })) {
+                                        Text(reminders[index].title)
+                                            .font(.title)
+                                            .foregroundColor(.white)
+                                            .padding(7.0)
+                                    }
 
                                     Spacer()
                                 }
                                 .padding(.leading)
 
+                                // Additional details
                                 HStack(spacing: 10) {
                                     HStack {
                                         Image(systemName: "sun.max")
@@ -125,7 +123,10 @@ struct TodayReminderView: View {
 
                 Spacer(minLength: 20)
 
-                NavigationLink(destination: SetReminderView()) {
+                NavigationLink(destination: SetReminderView(onSave: { newReminder in
+                    reminders.append(newReminder) // Add the new reminder
+                    saveReminders() // Save reminders after adding
+                })) {
                     HStack {
                         Image(systemName: "plus.circle.fill")
                             .foregroundColor(Color(red: 40/255, green: 224/255, blue: 168/255))
@@ -148,7 +149,7 @@ struct TodayReminderView: View {
             .onAppear {
                 loadReminders()
             }
-            .navigationBarBackButtonHidden(true)//for hide back button
+            .navigationBarBackButtonHidden(true)
         }
     }
 
